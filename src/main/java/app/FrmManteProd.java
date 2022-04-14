@@ -99,13 +99,13 @@ public class FrmManteProd extends JFrame {
 		contentPane.add(txtCódigo);
 		txtCódigo.setColumns(10);
 		//
-		EntityManagerFactory fabrica = Persistence.createEntityManagerFactory("mysql");
-		EntityManager em = fabrica.createEntityManager();
-		List<Producto> prod = em.createQuery("select p from Producto p", Producto.class).getResultList();
+		//EntityManagerFactory fabrica = Persistence.createEntityManagerFactory("mysql");
+		//EntityManager em = fabrica.createEntityManager();
+		//List<Producto> prod = em.createQuery("select p from Producto p", Producto.class).getResultList();
 		//
-		txtCódigo.setText("P00" + (prod.size()+1));
-		txtCódigo.setEditable(false);
-		em.close();
+		//txtCódigo.setText("P00" + (prod.size()+1));
+		//txtCódigo.setEditable(false);
+		//em.close();
 		
 		JLabel lblCodigo = new JLabel("Id. Producto :");
 		lblCodigo.setBounds(10, 14, 102, 14);
@@ -153,6 +153,15 @@ public class FrmManteProd extends JFrame {
 		cboProveedores = new JComboBox<String>();
 		cboProveedores.setBounds(300, 104, 120, 22);
 		contentPane.add(cboProveedores);
+		
+		JButton btnBuscar = new JButton("Buscar");
+		btnBuscar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				buscar();
+			}
+		});
+		btnBuscar.setBounds(324, 60, 89, 23);
+		contentPane.add(btnBuscar);
 		
 		llenaCombo();
 	}
@@ -221,7 +230,7 @@ public class FrmManteProd extends JFrame {
 		int estado = 1; //por defecto para activo
 		int proveedor = (cboProveedores.getSelectedIndex()+1);
 		
-		//proceso
+		//Process
 		Producto p = new Producto();
 		p.setId_prod(codigo);
 		p.setDes_prod(descripccion);
@@ -238,16 +247,37 @@ public class FrmManteProd extends JFrame {
 		em.persist(p);
 		em.getTransaction().commit();
 		
-		List<Producto> prod = em.createQuery("select p from Producto p", Producto.class).getResultList();
-		txtCódigo.setText("P00" + (prod.size()+1));
+		//List<Producto> prod = em.createQuery("select p from Producto p", Producto.class).getResultList();
+		//txtCódigo.setText("P00" + (prod.size()+1));
 		em.close();
 		
 		JOptionPane.showMessageDialog(this, "Producto registrado");
 		
+		//
 		txtDescripcion.setText("");
 		txtStock.setText("");
 		txtPrecio.setText("");
 		cboCategorias.setSelectedItem(0);
 		cboProveedores.setSelectedIndex(0);
+	}
+	
+	void buscar() {
+		//variables
+		EntityManagerFactory fabrica = Persistence.createEntityManagerFactory("mysql");
+		EntityManager em = fabrica.createEntityManager();
+
+		//process
+
+		//proceso -- buscar usuario
+		Producto p = em.find(Producto.class, txtCódigo.getText());
+
+		//Salida
+		txtDescripcion.setText(p.getDes_prod());
+		cboCategorias.setSelectedItem(p.getCategoria().getDescripcion());
+		txtPrecio.setText(Double.toString(p.getPre_prod()));
+		txtStock.setText(Integer.toString(p.getStk_prod()));
+		cboProveedores.setSelectedItem(p.getProveedor().getNombre_rs());
+
+		em.close();
 	}
 }
